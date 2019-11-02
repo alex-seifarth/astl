@@ -1,0 +1,98 @@
+/*!
+\page signal-slot Event Delegation with Signal-Slot Mechanism
+
+\section concepts Concept Description
+\subsection concept Introduction
+ASTL provides a simple and safe event delegation mechanism based on a signal-slot concept. There are three main elements
+in this concept
+- event category: An event category represents the collection of all events of a certain type. An event is associated
+     with a data type for the data associated with events of this category. The astl::core::event class is used for this.
+     Each producer of events of this category will have to instantiate or have access to an object of this class.
+- signal: A signal is the 'wire' that transports concrete events from one producer (astl::core::event) to all interested
+     event consumers. In ASTL there is the class astl::core::signal that represent it. Each ast::core::event object has
+     a signal attribute.
+- slot: A slot represents the event consumer side. A slot can be linked to a single signal (connected slot) or be not be
+     connected to a signal (disconnected slot). When an event is invoked on an event it will sent it via its signal to
+     all slots connected to the signal. The slot itself will then invoke a handler functor to inform about the event and
+     forward the associated data. The class astl::core::slot is used in ASTL for this.
+
+The signal and slot classes are written such that their connection mechanism is efficient (e.g. using raw pointers instead
+of shared ones) and remains safe to use. So the users of it don't have to worry about lifetime issues and dangling broken
+connections.
+
+\subsection semantics Semantic Issues
+- [S1] When an event is invoked, every connected slot gets invoked exactly once if it is not deleted before its invocation.
+- [S2] The order in which slots are invoked is not defined.
+- [S3] A slot can be disconnected at any time, also within an event invocation. From that moment on the slot is no
+      longer referenced by the signal. That means, that if the slot is disconnected within an event invocation and the
+      slot has not yet received this event, then it will never receive it.
+- [S4] If a slot is connected to a signal it will receive the next event invocations. This means, that when a slot is
+      connected within an ongoing event invocation it will not be invoked for this event, but only for the next one.
+
+\section programming Programming Guideline
+\subsection basic Using Signal-Slot Delegation
+The first step is to define the event with the data type associated with the event. The template astl::core::event
+also allows to specify a TAG to differentiate events with the same data type, but which are otherwise different.
+\code
+ #include <astl/core/signal.h>
+
+ struct TemperatureEventTag{};
+ using TemperatureEvent = ::astl::core::event<float, TemperatureEventTag>;
+
+ struct SpeedEventFlag{};
+ using SpeedEvent = ::astl::core::event<float, SpeedEventFlag>;
+
+ // although both events have float data associated with it we have TemperatureEvent != SpeedEvent
+
+ #include <string>
+ using TextMessageEvent = ::astl::core::event<std::string>;  // same as event<std::string, std::string>
+\endcode
+
+Each producer of events should own, usually privately, an instance of the corresponding event object. To allow event
+consumers the connection of their slots they should also provide a method to obtain the event's signal reference. To
+raise an event the consumer has to use the event object's invoke method.
+\code
+class EventProducer {
+public:
+    SpeedEvent::signal_type& speedSignal() noexcept
+    {
+        return speedEvent_.sig();
+    }
+
+    //...
+
+private:
+    SpeedEvent speedEvent_{};
+};
+
+sometype EventProducer::some_event_producing_method(...)
+{
+    //...
+    speedEvent_.invoke(23.3f);
+    //...
+}
+\endcode
+
+Event consumers on the other hand should have an instance of the event's slot type and connect it to a signal. A handler
+method attached to the slot will then be called whenever an event is sent.
+\code
+class EventConsumer {
+public:
+    EventConsumer(EventProducer& _ep)
+        : speedSlot_{[this](float const& v){this->onSpeedSignal(v);}  // using a lambda here to forward to a class member
+    {
+        _ep.speedSignal().connect(speedSlot_);  // connects the slot to the signal
+    }
+
+private:
+    void onSpeedSignal(float const& value) {
+        // handle speed value
+    }
+
+    SpeedEvent::slot_type speedSlot_;
+};
+\endcode
+
+\subsection eventHolder Consumer without explicit slots - EventSlotHolder
+tbd
+*/
