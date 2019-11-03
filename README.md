@@ -37,6 +37,10 @@ asynchronous communication, message boxes, etc.
   ```bash
   make test
   ```  
+  or 
+  ```bash
+  ctest
+  ```
   
   
   
