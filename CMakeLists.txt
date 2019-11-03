@@ -14,8 +14,5 @@ message(STATUS " * ASTL_GTEST           ${ASTL_GTESTS}")
 message(STATUS " * Doxygen Version      ${DOXYGEN_VERSION}")
 
 add_subdirectory(src)
-
-if(ASTL_GTESTS)
-    astl_enable_gtest()
-endif()
+astl_setup_gtest()
 

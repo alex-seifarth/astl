@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <functional>
 #include <list>
-#include <vector>
 
 namespace astl::core {
 
