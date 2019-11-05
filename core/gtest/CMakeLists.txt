@@ -2,6 +2,7 @@ set(SRCS
     test-event.cpp
     test-recursive_event.cpp
     test-slot_holder.cpp
+    test-final.cpp
 )
 
 add_executable(core-tests ${SRCS})

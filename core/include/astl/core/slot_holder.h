@@ -20,15 +20,25 @@ namespace astl::core {
 
     //! Manages creation and lifetime of event slots.
     //! A slot_holder object allows to connect handlers to signals so that slots are not explicitely handled by clients.
+    //!
+    //! \see \link signal-slot Event Delegation
     class slot_holder
     {
     public:
+        //! Connects the signal to the handler functor f.
+        //! \param replace  If the signal is already connected by this slot holder and replace = true, then the signal
+        //!                 will be connected with the new handler f, otherwise the function does nothing and returns false.
+        //! \param signal   The signal to connect to.
+        //! \param f        The handler functor that shall receive the events from the signal.
+        //! \returns true when the new handler f is connected, otherwise false.
         template<typename F, typename TAG, typename...Ts>
         bool connect(astl::core::signal<TAG, Ts...>& signal, F f, bool replace = false) noexcept;
 
+        //! Disconnects the signal. Does nothing when the signal is not connected by this slot-holder.
         template<typename TAG, typename...Ts>
         void disconnect(astl::core::signal<TAG, Ts...>& signal) noexcept;
 
+        //! Returns whether signal is connected or not.
         template<typename TAG, typename...Ts>
         bool is_connected(astl::core::signal<TAG, Ts...>& signal) const noexcept;
 

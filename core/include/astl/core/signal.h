@@ -29,6 +29,8 @@ namespace astl::core {
     //!
     //! \tparam Ts      Types of data associated with an event. Maybe empty.
     //! \tparam TAG     Tagging type to distinguish events using the same data type T. Defaults to T.
+    //!
+    //! \see \link signal-slot Event Delegation
     template<typename TAG, typename...Ts>
     class signal
     {
@@ -62,6 +64,8 @@ namespace astl::core {
     //!
     //! \tparam Ts      Types of data associated with an event. Maybe empty
     //! \tparam TAG     Tagging type to distinguish events using the same data type T. Defaults to T.
+    //!
+    //! \see \link signal-slot Event Delegation
     template<typename TAG, typename...Ts>
     class slot
     {

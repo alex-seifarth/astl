@@ -4,6 +4,7 @@ set(HEADERS
     ./inlcude/astl/core/signal.h
     ./include/astl/core/slot_holder.h
     ./include/astl/core/recursive_event.h
+    ./include/astl/core/final.h
 )
 
 add_library(core INTERFACE)
