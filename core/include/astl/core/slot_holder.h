@@ -11,25 +11,26 @@
 // If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
-#include <astl/core/signals.h>
+#include <astl/core/event.h>
 #include <algorithm>
 #include <tuple>
 #include <vector>
 
 namespace astl::core {
 
+    //! Manages creation and lifetime of event slots.
+    //! A slot_holder object allows to connect handlers to signals so that slots are not explicitely handled by clients.
     class slot_holder
     {
     public:
+        template<typename F, typename TAG, typename...Ts>
+        bool connect(astl::core::signal<TAG, Ts...>& signal, F f, bool replace = false) noexcept;
 
-        template<typename T, typename TAG, typename F>
-        bool connect(astl::core::signal<T, TAG>& signal, F f, bool replace = false) noexcept;
+        template<typename TAG, typename...Ts>
+        void disconnect(astl::core::signal<TAG, Ts...>& signal) noexcept;
 
-        template<typename T, typename TAG>
-        void disconnect(astl::core::signal<T, TAG>& signal) noexcept;
-
-        template<typename T, typename TAG>
-        bool is_connected(astl::core::signal<T, TAG>& signal) const noexcept;
+        template<typename TAG, typename...Ts>
+        bool is_connected(astl::core::signal<TAG, Ts...>& signal) const noexcept;
 
     private:
         struct abstract_item {
@@ -37,7 +38,7 @@ namespace astl::core {
             virtual ~abstract_item() = default;
         };
 
-        template<typename T, typename TAG>
+        template<typename TAG, typename...Ts>
         struct item : public abstract_item {
 
             template<typename F>
@@ -49,11 +50,11 @@ namespace astl::core {
                 return slot_.is_connected();
             };
 
-            astl::core::slot<T, TAG>& get() noexcept {
+            astl::core::slot<TAG, Ts...>& get() noexcept {
                 return slot_;
             }
 
-            astl::core::slot<T, TAG> slot_{};
+            astl::core::slot<TAG, Ts...> slot_{};
         };
 
         using value_type = std::pair<void*, std::unique_ptr<abstract_item>>;
@@ -62,8 +63,8 @@ namespace astl::core {
 
 } // namespace astl::core
 
-template<typename T, typename TAG, typename F>
-bool astl::core::slot_holder::connect(astl::core::signal<T, TAG>& signal, F f, bool replace) noexcept
+template<typename F, typename TAG, typename...Ts>
+bool astl::core::slot_holder::connect(astl::core::signal<TAG, Ts...>& signal, F f, bool replace) noexcept
 {
     auto i = std::find_if(slots_.begin(), slots_.end(), [&signal](value_type const& v){return v.first == &signal;});
     if (i != slots_.end() && !replace) {
@@ -72,14 +73,14 @@ bool astl::core::slot_holder::connect(astl::core::signal<T, TAG>& signal, F f, b
     if (i != slots_.end()) {
         slots_.erase(i);
     }
-    auto slotItem = std::make_unique<item<T, TAG>>(std::forward<F>(f));
+    auto slotItem = std::make_unique<item<TAG, Ts...>>(std::forward<F>(f));
     signal.connect(slotItem->get());
     slots_.push_back(std::make_pair(&signal, std::move(slotItem)));
     return true;
 }
 
-template<typename T, typename TAG>
-void astl::core::slot_holder::disconnect(astl::core::signal<T, TAG>& signal) noexcept
+template<typename TAG, typename...Ts>
+void astl::core::slot_holder::disconnect(astl::core::signal<TAG, Ts...>& signal) noexcept
 {
     auto i = std::find_if(slots_.begin(), slots_.end(), [&signal](value_type const& v){return v.first == &signal;});
     if (i != slots_.end()) {
@@ -87,8 +88,8 @@ void astl::core::slot_holder::disconnect(astl::core::signal<T, TAG>& signal) noe
     }
 }
 
-template<typename T, typename TAG>
-bool astl::core::slot_holder::is_connected(astl::core::signal<T, TAG>& signal) const noexcept
+template<typename TAG, typename...Ts>
+bool astl::core::slot_holder::is_connected(astl::core::signal<TAG, Ts...>& signal) const noexcept
 {
     auto i = std::find_if(slots_.cbegin(), slots_.cend(), [&signal](value_type const& v){return v.first == &signal;});
     if (i == slots_.cend())

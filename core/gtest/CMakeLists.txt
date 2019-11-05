@@ -1,5 +1,6 @@
 set(SRCS
-    test-signalslot.cpp
+    test-event.cpp
+    test-recursive_event.cpp
     test-slot_holder.cpp
 )
 

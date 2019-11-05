@@ -1,7 +1,9 @@
 set(INTF_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS
-    ./include/astl/core/signals.h
+    ./include/astl/core/event.h
+    ./inlcude/astl/core/signal.h
     ./include/astl/core/slot_holder.h
+    ./include/astl/core/recursive_event.h
 )
 
 add_library(core INTERFACE)

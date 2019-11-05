@@ -28,24 +28,26 @@ connections.
       slot has not yet received this event, then it will never receive it.
 - [S4] If a slot is connected to a signal it will receive the next event invocations. This means, that when a slot is
       connected within an ongoing event invocation it will not be invoked for this event, but only for the next one.
+- [S5] Events are distributed to the slots in the order of their invocation and complete, e.g. a recursive invocation
+     if allowed (see S5') will not interrupt and interleave with the ongoing invocation.
+- [S5'] Recursive invocation of an event is in general problematic. The standard event implementation will have undefined
+      behavior in this case. A special recursive_event implementation will serialize all event invocations into a queue
+      and process them one after another - try to avoid in anyway.
 
 \section programming Programming Guideline
 \subsection basic Using Signal-Slot Delegation
 The first step is to define the event with the data type associated with the event. The template astl::core::event
 also allows to specify a TAG to differentiate events with the same data type, but which are otherwise different.
 \code
- #include <astl/core/signal.h>
+ #include <astl/core/event.h>
 
  struct TemperatureEventTag{};
- using TemperatureEvent = ::astl::core::event<float, TemperatureEventTag>;
+ using TemperatureEvent = ::astl::core::event<TemperatureEventTag, float>;
 
  struct SpeedEventFlag{};
- using SpeedEvent = ::astl::core::event<float, SpeedEventFlag>;
+ using SpeedEvent = ::astl::core::event<SpeedEventFlag, float>;
 
  // although both events have float data associated with it we have TemperatureEvent != SpeedEvent
-
- #include <string>
- using TextMessageEvent = ::astl::core::event<std::string>;  // same as event<std::string, std::string>
 \endcode
 
 Each producer of events should own, usually privately, an instance of the corresponding event object. To allow event
@@ -94,5 +96,63 @@ private:
 \endcode
 
 \subsection eventHolder Consumer without explicit slots - EventSlotHolder
-tbd
+In cases where an entity has to handle a lot of slots (possibly dynamically allocated) it can be cumbersome to deal with
+it. For the is slot_holder class is provided that allows to register the handler functors directly with signals
+without explicit management of the associated slots.
+\code
+
+#include <astl/core/event.h>
+#include <astl/core/slot_holder.h>
+
+struct SpeedEventFlag{};
+using SpeedEvent = ::astl::core::event<SpeedEventFlag, float>;
+SpeedEvent speedEvent{};
+
+astl::core::slot_holder sh{};
+sh.connect(speedEvent.sig(), [](float const& speed){ ... handle speed });
+\endcode
+
+If the slot_holder shall be used in classes it can be aggregated (preferred) or inherited from. In the latter case a
+caveat has to be paid attention to especially in class hierarchies:
+The slot holder can only connected to one signal one handler - a new connection will either be ignored or replaces the
+old handler. So if a class A derives protected or public from slot_holder and class A register a handler for signal X,
+then a derived class B from A cannot simultaneously handle signal X:
+\code
+class A : protected astl::core::slot_holder
+{
+public:
+    A() {
+        connect(speedEvent.sig(), std::bind(&A::handleSpeed, this, std::placeholders::_1));
+    }
+
+private:
+    void handleSpeed(float const& speed) {
+        //...
+    }
+};
+
+class B : public A
+{
+public:
+    B() : A{} {
+        connect(speedEvent.sig(), [](float const& speed){ ...});  // does NOT register lambda as handler, returns false !!!
+        connect(speedEvent.sig(), [](float const& speed){ ...}, true);  // register lambda as handler, BUT disconnects A::handleSpeed !!!
+    }
+};
+\endcode
+
+\subsection recursive_event Recursive Event Invocation
+If recursive event invocations cannot be avoided (which you should really try first) then the class astl::core::recursive_event
+allows for it. This class will in its invoke method do the following:
+- the first invoke is dispatched to all connected slots,
+- if another invoke is called while the dispatch is going on, the new invoke data will be stored in a queue and
+  dispatched one after another when the previous event has been completely dispatched.
+
+\section References
+- \see
+ - astl::core::event,
+ - astl::core::signal,
+ - astl::core::slot,
+ - astl::core::slot_holder,
+ - astl::core::recursive_event
 */

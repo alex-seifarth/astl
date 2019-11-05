@@ -11,13 +11,14 @@
 // If not, see <http://www.gnu.org/licenses/>.
 #include <gtest/gtest.h>
 #include <astl/core/slot_holder.h>
-#include <astl/core/signals.h>
+#include <astl/core/event.h>
 
-TEST(SlotHolder, SingleSlot)
+TEST(slot_holder, SingleSlot)
 {
     astl::core::slot_holder sh;
 
-    using MyEvent = astl::core::event<int>;
+    struct MyEventTag{};
+    using MyEvent = astl::core::event<MyEventTag, int>;
     MyEvent myEvent;
 
     ASSERT_FALSE(sh.is_connected(myEvent.sig()));
@@ -26,21 +27,21 @@ TEST(SlotHolder, SingleSlot)
     sh.disconnect(myEvent.sig());
 
     int value1{0}, value2{0};
-    bool result = sh.connect(myEvent.sig(), [&value1](MyEvent::value_type const& v){value1 = v;});
+    bool result = sh.connect(myEvent.sig(), [&value1](int const& v){value1 = v;});
     ASSERT_TRUE(result);
     ASSERT_TRUE(sh.is_connected(myEvent.sig()));
 
     myEvent.invoke(1);
     ASSERT_EQ(value1, 1);
 
-    result = sh.connect(myEvent.sig(), [&value2](MyEvent::value_type const& v){value2 = v;});
+    result = sh.connect(myEvent.sig(), [&value2](int const& v){value2 = v;});
     ASSERT_FALSE(result);
     ASSERT_TRUE(sh.is_connected(myEvent.sig()));
     myEvent.invoke(2);
     ASSERT_EQ(value1, 2);
     ASSERT_EQ(value2, 0);
 
-    result = sh.connect(myEvent.sig(), [&value2](MyEvent::value_type const& v){value2 = v;}, true);
+    result = sh.connect(myEvent.sig(), [&value2](int const& v){value2 = v;}, true);
     ASSERT_TRUE(sh.is_connected(myEvent.sig()));
     ASSERT_TRUE(result);
     myEvent.invoke(3);
@@ -52,4 +53,46 @@ TEST(SlotHolder, SingleSlot)
     myEvent.invoke(4);
     ASSERT_EQ(value1, 2);
     ASSERT_EQ(value2, 3);
+}
+
+TEST(slot_holder, ThreeSlots)
+{
+    astl::core::slot_holder sh;
+
+    struct MyEvent1Tag{};
+    using MyEvent1 = ::astl::core::event<MyEvent1Tag, int, std::string>;
+    MyEvent1 myEvent1a, myEvent1b;
+
+    struct MyEvent2Tag{};
+    using MyEvent2 = ::astl::core::event<MyEvent2Tag, float>;
+    MyEvent2 myEvent2;
+
+    int valueInta{0}, valueIntb{0};
+    std::string valueStra{}, valueStrb{};
+    float valueFloat{0.};
+
+    sh.connect(myEvent1a.sig(), [&valueInta, &valueStra](int const& i, std::string const& s){valueInta = i; valueStra =s;});
+    sh.connect(myEvent1b.sig(), [&valueIntb, &valueStrb](int const& i, std::string const& s){valueIntb = i; valueStrb =s;});
+    sh.connect(myEvent2.sig(), [&valueFloat](float const& f){valueFloat = f;});
+
+    myEvent1a.invoke(1, "a");
+    ASSERT_EQ(valueInta, 1);
+    ASSERT_EQ(valueStra, "a");
+    ASSERT_EQ(valueIntb, 0);
+    ASSERT_EQ(valueStrb, "");
+    ASSERT_FLOAT_EQ(valueFloat, 0.);
+
+    myEvent1b.invoke(2, "b");
+    ASSERT_EQ(valueInta, 1);
+    ASSERT_EQ(valueStra, "a");
+    ASSERT_EQ(valueIntb, 2);
+    ASSERT_EQ(valueStrb, "b");
+    ASSERT_FLOAT_EQ(valueFloat, 0.);
+
+    myEvent2.invoke(1.4);
+    ASSERT_EQ(valueInta, 1);
+    ASSERT_EQ(valueStra, "a");
+    ASSERT_EQ(valueIntb, 2);
+    ASSERT_EQ(valueStrb, "b");
+    ASSERT_FLOAT_EQ(valueFloat, 1.4);
 }
