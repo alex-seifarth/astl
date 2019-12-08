@@ -59,7 +59,7 @@ astl::final::final(F f) noexcept
         : functor_{f}
 {}
 
-astl::core::final::~final()
+astl::final::~final() noexcept
 {
     if (functor_) {
         functor_();

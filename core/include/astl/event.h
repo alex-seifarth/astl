@@ -11,7 +11,7 @@
 // If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
-#include "signal.h"
+#include <astl/signal.h>
 #include <cassert>
 
 namespace astl {
