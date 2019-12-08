@@ -1,6 +1,6 @@
 name: CI 
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build-ubuntu:
@@ -16,4 +16,4 @@ jobs:
     - name: build
       run: cmake --build build
     - name: test
-      run: cd build && ctest
+      run: cd build && ctest -V
