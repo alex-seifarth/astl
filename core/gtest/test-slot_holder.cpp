@@ -10,15 +10,15 @@
 // You should have received a copy of the GNU General Public License along with Foobar.
 // If not, see <http://www.gnu.org/licenses/>.
 #include <gtest/gtest.h>
-#include <astl/core/slot_holder.h>
-#include <astl/core/event.h>
+#include <astl/slot_holder.h>
+#include <astl/event.h>
 
 TEST(slot_holder, SingleSlot)
 {
-    astl::core::slot_holder sh;
+    astl::slot_holder sh;
 
     struct MyEventTag{};
-    using MyEvent = astl::core::event<MyEventTag, int>;
+    using MyEvent = astl::event<MyEventTag, int>;
     MyEvent myEvent;
 
     ASSERT_FALSE(sh.is_connected(myEvent.sig()));
@@ -57,14 +57,14 @@ TEST(slot_holder, SingleSlot)
 
 TEST(slot_holder, ThreeSlots)
 {
-    astl::core::slot_holder sh;
+    astl::slot_holder sh;
 
     struct MyEvent1Tag{};
-    using MyEvent1 = ::astl::core::event<MyEvent1Tag, int, std::string>;
+    using MyEvent1 = ::astl::event<MyEvent1Tag, int, std::string>;
     MyEvent1 myEvent1a, myEvent1b;
 
     struct MyEvent2Tag{};
-    using MyEvent2 = ::astl::core::event<MyEvent2Tag, float>;
+    using MyEvent2 = ::astl::event<MyEvent2Tag, float>;
     MyEvent2 myEvent2;
 
     int valueInta{0}, valueIntb{0};

@@ -13,7 +13,7 @@
 
 #include <functional>
 
-namespace astl::core {
+namespace astl {
 
     //! A final object holds a functor void() that will be executed when the functor is being destroyed.
     //!
@@ -21,9 +21,9 @@ namespace astl::core {
     //! executed when an exception occurs. If instead the method reaches a point where the exception risk is over the
     //! final object can be reset to avoid execution of the functor:
     //! \code
-    //! #include <astl/core/final.h>
+    //! #include <astl/final.h>
     //!
-    //! astl::core::final f([](){ .. code to cleanup after exceptions ... });
+    //! astl::final f([](){ .. code to cleanup after exceptions ... });
     //! ...
     //! .. exception risky code ..
     //! ...
@@ -52,14 +52,14 @@ namespace astl::core {
         std::function<void()> functor_;
     };
 
-} // namespace astl::core
+} // namespace astl
 
 template<typename F>
-astl::core::final::final(F f) noexcept
+astl::final::final(F f) noexcept
         : functor_{f}
 {}
 
-astl::core::final::~final() noexcept
+astl::core::final::~final()
 {
     if (functor_) {
         functor_();
@@ -67,12 +67,12 @@ astl::core::final::~final() noexcept
 }
 
 template<typename F>
-void astl::core::final::reset(F f) noexcept
+void astl::final::reset(F f) noexcept
 {
     functor_ = f;
 }
 
-void astl::core::final::reset() noexcept
+void astl::final::reset() noexcept
 {
     functor_ = std::function<void()>{};
 }

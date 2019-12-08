@@ -10,14 +10,14 @@
 // You should have received a copy of the GNU General Public License along with Foobar.
 // If not, see <http://www.gnu.org/licenses/>.
 #include <gtest/gtest.h>
-#include <astl/core/event.h>
+#include <astl/event.h>
 
 #include <string>
 
 TEST(event, NoSlot)
 {
     struct MyEventTag{};
-    using MyEvent = astl::core::event<MyEventTag, int>;
+    using MyEvent = astl::event<MyEventTag, int>;
     MyEvent event{};
     event.invoke(2);
 }
@@ -25,7 +25,7 @@ TEST(event, NoSlot)
 TEST(event, OneSlot_SlotAutoDeleted)
 {
     struct MyEventTag{};
-    using MyEvent = astl::core::event<MyEventTag, int>;
+    using MyEvent = astl::event<MyEventTag, int>;
     MyEvent event{};
     int value{0};
 
@@ -46,7 +46,7 @@ TEST(event, OneSlot_SlotAutoDeleted)
 TEST(event, OneSlot_SlotExplicitelyDeleted)
 {
     struct MyEventTag{};
-    using MyEvent = astl::core::event<MyEventTag, int>;
+    using MyEvent = astl::event<MyEventTag, int>;
     MyEvent event{};
     int value{0};
 
@@ -72,7 +72,7 @@ TEST(event, OneSlot_SlotExplicitelyDeleted)
 TEST(event, OneSlot_SignalDeleted)
 {
     struct MyEventTag{};
-    using MyEvent = astl::core::event<MyEventTag, int, std::string>;
+    using MyEvent = astl::event<MyEventTag, int, std::string>;
 
     int valueInt{0};
     std::string valueStr{};
@@ -96,7 +96,7 @@ TEST(event, OneSlot_SignalDeleted)
 TEST(event, DeleteSameSlotWhileDispatched1)
 {
     struct MyEventTag{};
-    using MyEvent = ::astl::core::event<MyEventTag, std::string>;
+    using MyEvent = ::astl::event<MyEventTag, std::string>;
     std::string value1, value2;
 
     MyEvent myEvent;
@@ -124,7 +124,7 @@ TEST(event, DeleteSameSlotWhileDispatched1)
 TEST(event, DeleteSameSlotWhileDispatched2)
 {
     struct MyEventTag{};
-    using MyEvent = ::astl::core::event<MyEventTag, std::string>;
+    using MyEvent = ::astl::event<MyEventTag, std::string>;
     std::string value1, value2;
 
     MyEvent myEvent;
@@ -152,7 +152,7 @@ TEST(event, DeleteSameSlotWhileDispatched2)
 TEST(event, ConnectWhileDispatching)
 {
     struct MyEventTag{};
-    using MyEvent = ::astl::core::event<MyEventTag, std::string>;
+    using MyEvent = ::astl::event<MyEventTag, std::string>;
     std::string value1, value2;
 
     MyEvent myEvent;
@@ -182,7 +182,7 @@ TEST(event, ConnectWhileDispatching)
 TEST(event, DoubleConnect)
 {
     struct MyEventTag{};
-    using MyEvent = ::astl::core::event<MyEventTag, std::string>;
+    using MyEvent = ::astl::event<MyEventTag, std::string>;
     int count{0};
 
     MyEvent myEvent;
@@ -206,7 +206,7 @@ TEST(event, DoubleConnect)
 TEST(event, VoidData)
 {
     struct MyEventTag{};
-    using MyEvent = ::astl::core::event<MyEventTag>;
+    using MyEvent = ::astl::event<MyEventTag>;
 
     int count{0};
     MyEvent myEvent;

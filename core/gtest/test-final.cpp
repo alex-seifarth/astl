@@ -10,13 +10,13 @@
 // You should have received a copy of the GNU General Public License along with Foobar.
 // If not, see <http://www.gnu.org/licenses/>.
 #include <gtest/gtest.h>
-#include <astl/core/final.h>
+#include <astl/final.h>
 
 TEST(final, Executed)
 {
     bool executed{false};
     {
-        astl::core::final f([&executed](){executed = true;});
+        astl::final f([&executed](){executed = true;});
         (void)f;
         ASSERT_FALSE(executed);
     }
@@ -27,7 +27,7 @@ TEST(final, MotExecuted)
 {
     bool executed{false};
     {
-        astl::core::final f([&executed](){executed = true;});
+        astl::final f([&executed](){executed = true;});
         ASSERT_FALSE(executed);
         f.reset();
     }
@@ -38,7 +38,7 @@ TEST(final, ChangedFunctor)
 {
     bool executed{false}, executed2{false};
     {
-        astl::core::final f([&executed](){executed = true;});
+        astl::final f([&executed](){executed = true;});
         ASSERT_FALSE(executed);
         f.reset([&executed2](){executed2 = true;});
         ASSERT_FALSE(executed);

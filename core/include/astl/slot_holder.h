@@ -11,12 +11,12 @@
 // If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
-#include <astl/core/event.h>
+#include <astl/event.h>
 #include <algorithm>
 #include <tuple>
 #include <vector>
 
-namespace astl::core {
+namespace astl {
 
     //! Manages creation and lifetime of event slots.
     //! A slot_holder object allows to connect handlers to signals so that slots are not explicitely handled by clients.
@@ -32,15 +32,15 @@ namespace astl::core {
         //! \param f        The handler functor that shall receive the events from the signal.
         //! \returns true when the new handler f is connected, otherwise false.
         template<typename F, typename TAG, typename...Ts>
-        bool connect(astl::core::signal<TAG, Ts...>& signal, F f, bool replace = false) noexcept;
+        bool connect(astl::signal<TAG, Ts...>& signal, F f, bool replace = false) noexcept;
 
         //! Disconnects the signal. Does nothing when the signal is not connected by this slot-holder.
         template<typename TAG, typename...Ts>
-        void disconnect(astl::core::signal<TAG, Ts...>& signal) noexcept;
+        void disconnect(astl::signal<TAG, Ts...>& signal) noexcept;
 
         //! Returns whether signal is connected or not.
         template<typename TAG, typename...Ts>
-        bool is_connected(astl::core::signal<TAG, Ts...>& signal) const noexcept;
+        bool is_connected(astl::signal<TAG, Ts...>& signal) const noexcept;
 
     private:
         struct abstract_item {
@@ -60,21 +60,21 @@ namespace astl::core {
                 return slot_.is_connected();
             };
 
-            astl::core::slot<TAG, Ts...>& get() noexcept {
+            astl::slot<TAG, Ts...>& get() noexcept {
                 return slot_;
             }
 
-            astl::core::slot<TAG, Ts...> slot_{};
+            astl::slot<TAG, Ts...> slot_{};
         };
 
         using value_type = std::pair<void*, std::unique_ptr<abstract_item>>;
         std::vector<value_type> slots_{};
     };
 
-} // namespace astl::core
+} // namespace astl
 
 template<typename F, typename TAG, typename...Ts>
-bool astl::core::slot_holder::connect(astl::core::signal<TAG, Ts...>& signal, F f, bool replace) noexcept
+bool astl::slot_holder::connect(astl::signal<TAG, Ts...>& signal, F f, bool replace) noexcept
 {
     auto i = std::find_if(slots_.begin(), slots_.end(), [&signal](value_type const& v){return v.first == &signal;});
     if (i != slots_.end() && !replace) {
@@ -90,7 +90,7 @@ bool astl::core::slot_holder::connect(astl::core::signal<TAG, Ts...>& signal, F 
 }
 
 template<typename TAG, typename...Ts>
-void astl::core::slot_holder::disconnect(astl::core::signal<TAG, Ts...>& signal) noexcept
+void astl::slot_holder::disconnect(astl::signal<TAG, Ts...>& signal) noexcept
 {
     auto i = std::find_if(slots_.begin(), slots_.end(), [&signal](value_type const& v){return v.first == &signal;});
     if (i != slots_.end()) {
@@ -99,7 +99,7 @@ void astl::core::slot_holder::disconnect(astl::core::signal<TAG, Ts...>& signal)
 }
 
 template<typename TAG, typename...Ts>
-bool astl::core::slot_holder::is_connected(astl::core::signal<TAG, Ts...>& signal) const noexcept
+bool astl::slot_holder::is_connected(astl::signal<TAG, Ts...>& signal) const noexcept
 {
     auto i = std::find_if(slots_.cbegin(), slots_.cend(), [&signal](value_type const& v){return v.first == &signal;});
     if (i == slots_.cend())

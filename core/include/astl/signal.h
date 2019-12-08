@@ -16,7 +16,7 @@
 #include <functional>
 #include <list>
 
-namespace astl::core {
+namespace astl {
 
     template<typename TAG, typename...Ts> class recursive_event;
     template<typename TAG, typename...Ts> class event;
@@ -100,13 +100,13 @@ namespace astl::core {
         signal_type* signal_{nullptr};
     };
 
-} // namespace astl::core
+} // namespace astl
 
 // ------------------------------------------------------------------------------------------------
 // impl signal
 // ------------------------------------------------------------------------------------------------
 template<typename TAG, typename...Ts>
-    astl::core::signal<TAG, Ts...>::~signal()
+    astl::signal<TAG, Ts...>::~signal()
 {
     for (auto& slot : slots_) {
         slot->disconnected();
@@ -116,7 +116,7 @@ template<typename TAG, typename...Ts>
 template<typename TAG, typename...Ts>
     template<typename...Args>
     void
-    astl::core::signal<TAG, Ts...>::invoke(Args &&... args) noexcept
+    astl::signal<TAG, Ts...>::invoke(Args &&... args) noexcept
 {
     assert(actual_slot_ == nullptr); // check recursive invocation
     for(auto i = slots_.begin(); i != slots_.end();) {
@@ -134,7 +134,7 @@ template<typename TAG, typename...Ts>
 
 template<typename TAG, typename...Ts>
     void
-    astl::core::signal<TAG, Ts...>::connect(slot_type& slot) noexcept
+    astl::signal<TAG, Ts...>::connect(slot_type& slot) noexcept
 {
     auto i = std::find_if(slots_.begin(), slots_.end(), [&slot](slot_type* s){return s == &slot;});
     if (i != slots_.end())
@@ -146,7 +146,7 @@ template<typename TAG, typename...Ts>
 
 template<typename TAG, typename...Ts>
     void
-    astl::core::signal<TAG, Ts...>::slot_detached(slot_type& slot) noexcept
+    astl::signal<TAG, Ts...>::slot_detached(slot_type& slot) noexcept
 {
     if (actual_slot_ != &slot) {
         slots_.erase(std::find_if(slots_.begin(), slots_.end(), [&slot](slot_type* s){return s == &slot;}));
@@ -161,12 +161,12 @@ template<typename TAG, typename...Ts>
 // ------------------------------------------------------------------------------------------------
 template<typename TAG, typename...Ts>
     template<typename F>
-    astl::core::slot<TAG, Ts...>::slot(F f) noexcept
+    astl::slot<TAG, Ts...>::slot(F f) noexcept
         : functor_{f}
 {}
 
 template<typename TAG, typename...Ts>
-    astl::core::slot<TAG, Ts...>::~slot() noexcept
+    astl::slot<TAG, Ts...>::~slot() noexcept
 {
     if (signal_) {
         signal_->slot_detached(*this);
@@ -176,14 +176,14 @@ template<typename TAG, typename...Ts>
 template<typename TAG, typename...Ts>
     template<typename F>
     void
-    astl::core::slot<TAG, Ts...>::set_functor(F f) noexcept
+    astl::slot<TAG, Ts...>::set_functor(F f) noexcept
 {
     functor_ = f;
 }
 
 template<typename TAG, typename...Ts>
     void
-    astl::core::slot<TAG, Ts...>::disconnect() noexcept
+    astl::slot<TAG, Ts...>::disconnect() noexcept
 {
     if (signal_) {
         signal_->slot_detached(*this);
@@ -194,7 +194,7 @@ template<typename TAG, typename...Ts>
 template<typename TAG, typename...Ts>
     template<typename...Args>
     void
-    astl::core::slot<TAG, Ts...>::invoke(Args &&... args) noexcept
+    astl::slot<TAG, Ts...>::invoke(Args &&... args) noexcept
 {
     if (functor_) {
         functor_(std::forward<Args>(args)...);
@@ -203,7 +203,7 @@ template<typename TAG, typename...Ts>
 
 template<typename TAG, typename...Ts>
     void
-    astl::core::slot<TAG, Ts...>::connected_to(signal_type& signal) noexcept
+    astl::slot<TAG, Ts...>::connected_to(signal_type& signal) noexcept
 {
     if (signal_) {
         signal_->slot_detached(*this);
@@ -213,14 +213,14 @@ template<typename TAG, typename...Ts>
 
 template<typename TAG, typename...Ts>
     void
-    astl::core::slot<TAG, Ts...>::disconnected() noexcept
+    astl::slot<TAG, Ts...>::disconnected() noexcept
 {
     signal_ = nullptr;
 }
 
 template<typename TAG, typename...Ts>
     bool
-    astl::core::slot<TAG, Ts...>::is_connected() const noexcept
+    astl::slot<TAG, Ts...>::is_connected() const noexcept
 {
     return signal_;
 }

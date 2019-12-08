@@ -10,12 +10,12 @@
 // You should have received a copy of the GNU General Public License along with Foobar.
 // If not, see <http://www.gnu.org/licenses/>.
 #include <gtest/gtest.h>
-#include <astl/core/recursive_event.h>
+#include <astl/recursive_event.h>
 
 TEST(recursive_event, NoSlot)
 {
     struct MyEventTag{};
-    using MyEvent = ::astl::core::recursive_event<MyEventTag, int, int>;
+    using MyEvent = ::astl::recursive_event<MyEventTag, int, int>;
     MyEvent myEvent;
 
     myEvent.invoke(2, 3);
@@ -24,7 +24,7 @@ TEST(recursive_event, NoSlot)
 TEST(recursive_event, RecursiveInvocation)
 {
     struct MyEventTag{};
-    using MyEvent = ::astl::core::recursive_event<MyEventTag, int, int>;
+    using MyEvent = ::astl::recursive_event<MyEventTag, int, int>;
     MyEvent myEvent;
 
     int value1{0}, value2{0}, count{0};
@@ -49,7 +49,7 @@ TEST(recursive_event, RecursiveInvocation)
 
 TEST(recursive_event, VoidEvents) {
     struct MyEventTag {};
-    using MyEvent = ::astl::core::recursive_event<MyEventTag>;
+    using MyEvent = ::astl::recursive_event<MyEventTag>;
     MyEvent myEvent;
 
     int count{0};

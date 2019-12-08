@@ -14,7 +14,7 @@
 #include "signal.h"
 #include <cassert>
 
-namespace astl::core {
+namespace astl {
 
     //! The event class represent an event source that can broadcast events associated with data of type T.
     //! Event producers should own or have access to an instance of an event object. It allows to raise events using the
@@ -56,15 +56,15 @@ namespace astl::core {
 #endif
     };
 
-} // namespace astl::core
+} // namespace astl
 
 
 // ------------------------------------------------------------------------------------------------
 // impl event
 // ------------------------------------------------------------------------------------------------
 template<typename TAG, typename...Ts>
-    typename astl::core::event<TAG, Ts...>::signal_type&
-    astl::core::event<TAG, Ts...>::sig() noexcept
+    typename astl::event<TAG, Ts...>::signal_type&
+    astl::event<TAG, Ts...>::sig() noexcept
 {
     return signal_;
 }
@@ -72,7 +72,7 @@ template<typename TAG, typename...Ts>
 template<typename TAG, typename...Ts>
     template<typename...Args>
     void
-    astl::core::event<TAG, Ts...>::invoke(Args &&... args) noexcept
+    astl::event<TAG, Ts...>::invoke(Args &&... args) noexcept
 {
 #ifndef NDEBUG
     assert(!dispatching_);

@@ -6,15 +6,15 @@
 ASTL provides a simple and safe event delegation mechanism based on a signal-slot concept. There are three main elements
 in this concept
 - event category: An event category represents the collection of all events of a certain type. An event is associated
-     with a data type for the data associated with events of this category. The astl::core::event class is used for this.
+     with a data type for the data associated with events of this category. The astl::event class is used for this.
      Each producer of events of this category will have to instantiate or have access to an object of this class.
-- signal: A signal is the 'wire' that transports concrete events from one producer (astl::core::event) to all interested
-     event consumers. In ASTL there is the class astl::core::signal that represent it. Each ast::core::event object has
+- signal: A signal is the 'wire' that transports concrete events from one producer (astl::event) to all interested
+     event consumers. In ASTL there is the class astl::signal that represent it. Each ast::core::event object has
      a signal attribute.
 - slot: A slot represents the event consumer side. A slot can be linked to a single signal (connected slot) or be not be
      connected to a signal (disconnected slot). When an event is invoked on an event it will sent it via its signal to
      all slots connected to the signal. The slot itself will then invoke a handler functor to inform about the event and
-     forward the associated data. The class astl::core::slot is used in ASTL for this.
+     forward the associated data. The class astl::slot is used in ASTL for this.
 
 The signal and slot classes are written such that their connection mechanism is efficient (e.g. using raw pointers instead
 of shared ones) and remains safe to use. So the users of it don't have to worry about lifetime issues and dangling broken
@@ -36,16 +36,16 @@ connections.
 
 \section programming Programming Guideline
 \subsection basic Using Signal-Slot Delegation
-The first step is to define the event with the data type associated with the event. The template astl::core::event
+The first step is to define the event with the data type associated with the event. The template astl::event
 also allows to specify a TAG to differentiate events with the same data type, but which are otherwise different.
 \code
- #include <astl/core/event.h>
+ #include <astl/event.h>
 
  struct TemperatureEventTag{};
- using TemperatureEvent = ::astl::core::event<TemperatureEventTag, float>;
+ using TemperatureEvent = ::astl::event<TemperatureEventTag, float>;
 
  struct SpeedEventFlag{};
- using SpeedEvent = ::astl::core::event<SpeedEventFlag, float>;
+ using SpeedEvent = ::astl::event<SpeedEventFlag, float>;
 
  // although both events have float data associated with it we have TemperatureEvent != SpeedEvent
 \endcode
@@ -101,14 +101,14 @@ it. For the is slot_holder class is provided that allows to register the handler
 without explicit management of the associated slots.
 \code
 
-#include <astl/core/event.h>
-#include <astl/core/slot_holder.h>
+#include <astl/event.h>
+#include <astl/slot_holder.h>
 
 struct SpeedEventFlag{};
-using SpeedEvent = ::astl::core::event<SpeedEventFlag, float>;
+using SpeedEvent = ::astl::event<SpeedEventFlag, float>;
 SpeedEvent speedEvent{};
 
-astl::core::slot_holder sh{};
+astl::slot_holder sh{};
 sh.connect(speedEvent.sig(), [](float const& speed){ ... handle speed });
 \endcode
 
@@ -118,7 +118,7 @@ The slot holder can only connected to one signal one handler - a new connection 
 old handler. So if a class A derives protected or public from slot_holder and class A register a handler for signal X,
 then a derived class B from A cannot simultaneously handle signal X:
 \code
-class A : protected astl::core::slot_holder
+class A : protected astl::slot_holder
 {
 public:
     A() {
@@ -142,7 +142,7 @@ public:
 \endcode
 
 \subsection recursive_event Recursive Event Invocation
-If recursive event invocations cannot be avoided (which you should really try first) then the class astl::core::recursive_event
+If recursive event invocations cannot be avoided (which you should really try first) then the class astl::recursive_event
 allows for it. This class will in its invoke method do the following:
 - the first invoke is dispatched to all connected slots,
 - if another invoke is called while the dispatch is going on, the new invoke data will be stored in a queue and
@@ -150,9 +150,9 @@ allows for it. This class will in its invoke method do the following:
 
 \section References
 - \see
- - astl::core::event,
- - astl::core::signal,
- - astl::core::slot,
- - astl::core::slot_holder,
- - astl::core::recursive_event
+ - astl::event,
+ - astl::signal,
+ - astl::slot,
+ - astl::slot_holder,
+ - astl::recursive_event
 */

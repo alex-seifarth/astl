@@ -16,7 +16,7 @@
 #include <queue>
 #include <tuple>
 
-namespace astl::core {
+namespace astl {
 
     //! Event for signal-slot based event delegation with support for recursive event invocations.
     //!
@@ -51,14 +51,14 @@ namespace astl::core {
         std::queue<value_type> event_queue_{};
     };
 
-} // namespace astl::core
+} // namespace astl
 
 // ------------------------------------------------------------------------------------------------
 // impl recursive_event
 // ------------------------------------------------------------------------------------------------
 template<typename TAG, typename...Ts>
-    typename astl::core::recursive_event<TAG, Ts...>::signal_type&
-    astl::core::recursive_event<TAG, Ts...>::sig() noexcept
+    typename astl::recursive_event<TAG, Ts...>::signal_type&
+    astl::recursive_event<TAG, Ts...>::sig() noexcept
 {
     return signal_;
 }
@@ -66,7 +66,7 @@ template<typename TAG, typename...Ts>
 template<typename TAG, typename...Ts>
     template<typename...Args>
     void
-    astl::core::recursive_event<TAG, Ts...>::invoke(Args &&... args) noexcept
+    astl::recursive_event<TAG, Ts...>::invoke(Args &&... args) noexcept
 {
     event_queue_.push(std::make_tuple(std::forward<Args>(args)...));
     if (event_queue_.size() > 1) {

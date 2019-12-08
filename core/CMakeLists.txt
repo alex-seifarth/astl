@@ -1,10 +1,10 @@
 set(INTF_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS
-    ./include/astl/core/event.h
-    ./inlcude/astl/core/signal.h
-    ./include/astl/core/slot_holder.h
-    ./include/astl/core/recursive_event.h
-    ./include/astl/core/final.h
+    include/astl/event.h
+    inlcude/astl/signal.h
+    include/astl/slot_holder.h
+    include/astl/recursive_event.h
+    include/astl/final.h
 )
 
 add_library(core INTERFACE)
@@ -31,13 +31,13 @@ include(GNUInstallDirs)
 install(TARGETS core
     EXPORT astl-exports
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astl/core
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astl
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     RENAME astlCore
 )
 
 install(FILES ${HEADERS}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astl/core
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astl
 )
 
 if (ASTL_GTESTS)
