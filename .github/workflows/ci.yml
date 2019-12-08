@@ -9,6 +9,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: prepare-dependencies
+      run: sudo apt-get install libgtest-dev
     - name: configure
       run: mkdir build && cd build && cmake -DASTL_GTESTS=ON ..
     - name: build
