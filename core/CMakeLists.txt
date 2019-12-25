@@ -1,7 +1,7 @@
 set(INTF_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS
     include/astl/event.h
-    inlcude/astl/signal.h
+    include/astl/signal.h
     include/astl/slot_holder.h
     include/astl/recursive_event.h
     include/astl/final.h
