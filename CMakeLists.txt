@@ -33,6 +33,6 @@ endif()
 
 include(GNUInstallDirs)
 install(EXPORT astl-exports
-    NAMESPACE astl
+    NAMESPACE astl::
     DESTINATION ${INSTALL_CMAKE_DIR} ${CMAKE_INSTALL_LIBDIR}/cmake/astl
 )

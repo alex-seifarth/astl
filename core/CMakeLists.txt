@@ -1,3 +1,5 @@
+set(COMPONENT core)
+
 set(INTF_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS
     include/astl/event.h
@@ -7,15 +9,15 @@ set(HEADERS
     include/astl/final.h
 )
 
-add_library(core INTERFACE)
+add_library(${COMPONENT} INTERFACE)
 
-target_include_directories(core
+target_include_directories(${COMPONENT}
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(core
+target_compile_features(${COMPONENT}
     INTERFACE cxx_std_17 cxx_auto_type cxx_constexpr cxx_decltype cxx_defaulted_move_initializers cxx_delegating_constructors
         cxx_digit_separators cxx_explicit_conversions cxx_final cxx_inheriting_constructors cxx_inline_namespaces
         cxx_lambdas cxx_noexcept cxx_nullptr cxx_override cxx_range_for cxx_right_angle_brackets cxx_rvalue_references
@@ -23,22 +25,19 @@ target_compile_features(core
         cxx_variadic_templates cxx_template_template_parameters
 )
 
-target_compile_options(core
+target_compile_options(${COMPONENT}
     INTERFACE -Wall -Wextra -pedantic -Werror
 )
 
 include(GNUInstallDirs)
-install(TARGETS core
+install(TARGETS ${COMPONENT}
     EXPORT astl-exports
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astl
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    RENAME astlCore
 )
 
-install(FILES ${HEADERS}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astl
-)
+install(DIRECTORY ./include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/astl-v${PROJECT_VERSION_MAJOR})
 
 if (ASTL_GTESTS)
     add_subdirectory(gtest)
